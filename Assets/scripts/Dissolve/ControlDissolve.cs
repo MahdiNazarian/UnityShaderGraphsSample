@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class ControlDissolve : MonoBehaviour
 {
@@ -11,11 +12,13 @@ public class ControlDissolve : MonoBehaviour
     [SerializeField] private float EdgeSize = 0.2f;
     [SerializeField] Color MainColor;
     [SerializeField] Color EdgeColor;
-    [SerializeField] private Renderer renderer;
+    [SerializeField] private Renderer rend;
+    [SerializeField] private GameObject particleEffect;
     private Material material;
+    private bool isDissolving = false;
     void Start()
     {
-        material = renderer.material;
+        material = rend.material;
         material.SetColor("_MainColor", MainColor);
         material.SetColor("_EdgeColor", EdgeColor);
         material.SetFloat("_EdgeSize", EdgeSize);
@@ -25,12 +28,28 @@ public class ControlDissolve : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        material.SetColor("_MainColor", MainColor);
-        material.SetColor("_EdgeColor", EdgeColor);
-        material.SetFloat("_EdgeSize", EdgeSize);
-        cutoff -= cutoffDecreaseSpeed * Time.deltaTime;
+        if(InputSystem.GetDevice<Keyboard>()?.dKey.wasPressedThisFrame == true)
+        {
+            isDissolving = !isDissolving;
+            particleEffect.SetActive(true);
+        }
+        if(isDissolving && cutoff > 0)
+            cutoff -= cutoffDecreaseSpeed * Time.deltaTime;
+        else if (!isDissolving && cutoff < 1)
+            cutoff += cutoffDecreaseSpeed * Time.deltaTime;
+        cutoff = Mathf.Clamp(cutoff, 0.0f, 1.0f);
         material.SetFloat("_Cutoff", cutoff);
-        if (cutoff <= 0.0f)
-            cutoff = 1.0f;
+        if(cutoff<= 0.5f)
+        {
+            rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        }
+        else
+        {
+            rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+        }
+        if(cutoff <= 0.0f || cutoff >= 1.0f)
+        {
+            particleEffect.SetActive(false);
+        }
     }
 }
