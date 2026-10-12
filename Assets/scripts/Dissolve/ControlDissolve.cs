@@ -47,7 +47,7 @@ public class ControlDissolve : MonoBehaviour
         {
             rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
         }
-        if(cutoff <= 0.0f || cutoff >= 1.0f)
+        if(cutoff <= 0.0f || cutoff >= 1.0)
         {
             particleEffect.SetActive(false);
         }
